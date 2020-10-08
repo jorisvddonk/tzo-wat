@@ -34,13 +34,18 @@ i32.toString = () => "i32";
 export class Builder {
   input: Instruction[] = undefined;
   wasm_module = sexp("module");
-  constructor(input) {
+  constructor(input: Instruction[]) {
     this.input = input;
+  }
+
+  declareImport(importName: string) {
+    this.wasm_module.nodes.push(
+      func("$i", imprt(str("imports"), str(importName)), param(i32))
+    )
   }
 
   build() {
     this.wasm_module.nodes.push(
-      func("$i", imprt(str("imports"), str("callback")), param(i32)),
       func(
         "$add", param(i32), param(i32), local.get(0), local.get(1), i32.add(), call('$i')
       ),

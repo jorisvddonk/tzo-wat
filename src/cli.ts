@@ -11,5 +11,5 @@ program
 const input_file = JSON.parse(fs.readFileSync(program.input).toString());
 
 const builder = new Builder(input_file.programList);
-
+builder.declareImport("callback");
 fs.writeFileSync(program.output, builder.build().toString());
