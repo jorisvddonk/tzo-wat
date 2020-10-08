@@ -1,6 +1,6 @@
 # Tzo-Wat
 
-This is an experimental compiler that compiles [Tzo](https://github.com/jorisvddonk/tzo) bytecode into a WebAssembly .wat file!
+This is an experimental compiler that compiles [Tzo](https://github.com/jorisvddonk/tzo) Standard Representation into a WebAssembly .wat file!
 
 ## Running
 
