@@ -1,0 +1,30 @@
+{
+  "name": "tzo-wat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/cli.ts",
+    "ts-node": "ts-node"
+  },
+  "bin": {
+    "tzo-wat": "./bin/tzo-wat"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/commander": "^2.12.2",
+    "@types/node": "^14.11.5",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  },
+  "dependencies": {
+    "commander": "^6.1.0",
+    "node-sexp": "^1.0.1",
+    "tzo": "^1.0.6"
+  }
+}
