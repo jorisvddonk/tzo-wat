@@ -42,6 +42,7 @@ interface StringTable {
 }
 
 export class Builder {
+  imports: string[] = [];
   input: Instruction[] = undefined;
   wasm_module = sexp("module");
   stringtable: StringTable = {}
@@ -57,9 +58,13 @@ export class Builder {
     });
   }
 
-  declareImport(importName: string) {
+  declareImport(importName: string, params?) {
+    if (params === undefined) {
+      params = [];
+    }
+    this.imports.push(importName);
     this.wasm_module.nodes.push(
-      func("$i", imprt(str("imports"), str(importName)), param(i32))
+      func(`$${importName}`, imprt(str("imports"), str(importName)), ...params)
     )
   }
 
@@ -93,6 +98,8 @@ export class Builder {
           i32.store() // finally store
         ]
 
+      if (this.imports.includes(i.functionName)) {
+        return `call $${i.functionName}`;
       }
 
 
