@@ -114,7 +114,7 @@ export class Builder {
           retval.unshift({
             type: ei.type,
             value: "if",
-            consumes: ei.consumes,
+            consumes: ei2.consumes,
             produces: ei.produces,
             conditionBody: ei2_children_analysis,
             thenBody: ei_children_analysis,
@@ -139,7 +139,7 @@ export class Builder {
   expressionToString(expression: WasmExpression) {
     if (expression.type === "block" && expression.value === "if") {
       return `${this.treeToString(expression.conditionBody)}
-if $I0
+if $I0 ${expression.produces > 0 ? `(result i32)` : ``}
 ${this.treeToString(expression.thenBody)}
 end`;
     }
