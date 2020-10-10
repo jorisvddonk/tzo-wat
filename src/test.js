@@ -6,7 +6,7 @@ const bytes = fs.readFileSync(process.argv[2]);
   const module = await WebAssembly.compile(bytes);
   const instance = await WebAssembly.instantiate(module, {
     env: {
-      memory: new WebAssembly.Memory({ initial: 256 }),
+      memory: new WebAssembly.Memory({ initial: 32767 }),
       table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
     },
     imports: {
@@ -30,7 +30,7 @@ const bytes = fs.readFileSync(process.argv[2]);
       },
     },
     js: {
-      mem: new WebAssembly.Memory({ initial: 256 }),
+      mem: new WebAssembly.Memory({ initial: 32767 }),
     }
   });
   console.log(instance.exports.main(1, 5));
