@@ -13,8 +13,8 @@ const bytes = fs.readFileSync(process.argv[2]);
       pause: () => {
         console.log("pause")
       },
-      loadImage: () => {
-        console.log("loadImage")
+      loadImage: (a, b, c) => {
+        console.log("loadImage", a, b, c)
       },
       drawFrame: () => {
         console.log("drawFrame")
@@ -25,8 +25,8 @@ const bytes = fs.readFileSync(process.argv[2]);
       endDraw: () => {
         console.log("endDraw")
       },
-      random: () => {
-        console.log("random")
+      randInt: (i) => {
+        return Math.floor(Math.random() * i)
       },
     },
     js: {
