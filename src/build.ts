@@ -28,6 +28,7 @@ const imprt = genFunction('import');
 const call = genStr('call');
 const nop = genStr('nop');
 const memory = genFunction('memory');
+const data = genFunction('data');
 const local: any = genFunction('local');
 (local as any).get = genStr('get_local');
 (local as any).set = genStr('set_local');
@@ -52,7 +53,8 @@ export class Builder {
   input: Instruction[] = undefined;
   analysis: WasmExpression[] = [];
   wasm_module = sexp("module");
-  stringtable: StringTable = {}
+  stringtable: StringTable = {};
+  strtbl_i = 0;
 
   unknownInstructions = {};
 
@@ -84,7 +86,8 @@ export class Builder {
     this.input = input;
     input.forEach(i => {
       if (i.type === "push-string-instruction" && this.stringtable[i.value] === undefined) {
-        this.stringtable[i.value] = Object.keys(this.stringtable).length;
+        this.stringtable[i.value] = this.strtbl_i;
+        this.strtbl_i += i.value.length;
       }
     });
     let analysis: WasmExpression[] = analyzer.getExpressions() as WasmExpression[];
@@ -226,6 +229,12 @@ ${(this.convertInstruction({
 
   }
 
+  getDatas() {
+    return Object.entries(this.stringtable).map(entry => {
+      return data(i32.const(entry[1]), str(entry[0]));
+    });
+  }
+
   build() {
     const neededLocals = [
       local("$sA", i32),
@@ -234,6 +243,7 @@ ${(this.convertInstruction({
 
     this.wasm_module.nodes.push(
       imprt(str("js"), str("mem"), memory(1)),
+      ...this.getDatas(),
       func(
         "$main", ...neededLocals, '\n', this.treeToString(this.analysis)
       ),
