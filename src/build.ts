@@ -17,7 +17,7 @@ const genStr = (sname) => {
 }
 
 const str = (val) => {
-  return `"${val}"`
+  return `"${val.replace(/\"/i, '\"')}"`
 }
 
 const func = genFunction('func');
