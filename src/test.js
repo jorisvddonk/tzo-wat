@@ -10,10 +10,28 @@ const bytes = fs.readFileSync(process.argv[2]);
       table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
     },
     imports: {
-      callback: (a) => {
-        console.log("CB", a)
-      }
+      pause: () => {
+        console.log("pause")
+      },
+      loadImage: () => {
+        console.log("loadImage")
+      },
+      drawFrame: () => {
+        console.log("drawFrame")
+      },
+      beginDraw: () => {
+        console.log("beginDraw")
+      },
+      endDraw: () => {
+        console.log("endDraw")
+      },
+      random: () => {
+        console.log("random")
+      },
+    },
+    js: {
+      mem: new WebAssembly.Memory({ initial: 256 }),
     }
   });
-  console.log(instance.exports.add(1, 5));
+  console.log(instance.exports.main(1, 5));
 })();
