@@ -15,6 +15,6 @@ builder.declareImport("pause");
 builder.declareImport("loadImage", [`(param i32)`, `(param i32)`, `(param i32)`]);
 builder.declareImport("beginDraw");
 builder.declareImport("drawFrame", [`(param i32)`]);
-builder.declareImport("randInt", [`(param i32)`]);
+builder.declareImport("randInt", [`(param i32)`], [`(result i32)`]);
 builder.declareImport("endDraw");
 fs.writeFileSync(program.output, builder.build().toString());

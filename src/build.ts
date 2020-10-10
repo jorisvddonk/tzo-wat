@@ -160,13 +160,16 @@ ${(this.convertInstruction({
     return expressions.map(x => this.expressionToString(x)).join('\n');
   }
 
-  declareImport(importName: string, params?) {
+  declareImport(importName: string, params?, results?) {
     if (params === undefined) {
       params = [];
     }
+    if (results === undefined) {
+      results = [];
+    }
     this.imports.push(importName);
     this.wasm_module.nodes.push(
-      func(`$${importName}`, imprt(str("imports"), str(importName)), ...params)
+      func(`$${importName}`, imprt(str("imports"), str(importName)), ...params, ...results)
     )
   }
 
