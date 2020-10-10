@@ -39,6 +39,9 @@ const i32 = {
   store: genStr("i32.store"),
   const: genStr("i32.const"),
   eq: genStr("i32.eq"),
+  ne: genStr("i32.ne"),
+  or: genStr("i32.or"),
+  and: genStr("i32.and"),
 }
 i32.toString = () => "i32";
 
@@ -194,6 +197,28 @@ ${(this.convertInstruction({
         local.get("$sB"),
         local.get("$sA"),
         i32.store() // finally store
+      ]);
+    }
+    if (i.type === "invoke-function-instruction" && i.functionName === "or") {
+      return c([
+        i32.const(0),
+        i32.ne(),
+        local.set("$sA"),
+        i32.const(0),
+        i32.ne(),
+        local.get("$sA"),
+        i32.or()
+      ]);
+    }
+    if (i.type === "invoke-function-instruction" && i.functionName === "and") {
+      return c([
+        i32.const(0),
+        i32.ne(),
+        local.set("$sA"),
+        i32.const(0),
+        i32.ne(),
+        local.get("$sA"),
+        i32.and()
       ]);
     }
     if (i.functionName === "not") {
