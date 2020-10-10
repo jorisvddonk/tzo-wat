@@ -11,5 +11,10 @@ program
 const input_file = JSON.parse(fs.readFileSync(program.input).toString());
 
 const builder = new Builder(input_file.programList);
-builder.declareImport("callback");
+builder.declareImport("pause");
+builder.declareImport("loadImage", [`(param i32)`, `(param i32)`, `(param i32)`]);
+builder.declareImport("beginDraw");
+builder.declareImport("drawFrame", [`(param i32)`]);
+builder.declareImport("random", [`(param i32)`]);
+builder.declareImport("endDraw");
 fs.writeFileSync(program.output, builder.build().toString());
