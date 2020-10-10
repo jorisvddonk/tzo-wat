@@ -176,7 +176,7 @@ ${(this.convertInstruction({
     }
 
     if (i.type === "push-string-instruction") {
-      return i32.const(this.stringtable[i.value]);
+      return i32.const(this.stringtable[i.value]) + ` ;; ${i.value}`;
     }
     if (i.type === "push-number-instruction") {
       return i32.const(i.value);
