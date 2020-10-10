@@ -270,8 +270,10 @@ ${(this.convertInstruction({
     ]
 
     this.wasm_module.nodes.push(
-      imprt(str("js"), str("mem"), memory(1)),
+      // imprt(str("js"), str("mem"), memory(1)),
+      `(memory $0 1)`,
       ...this.getDatas(),
+      `(export "pagememory" (memory $0))`,
       func(
         "$main", ...neededLocals, '\n', this.treeToString(this.analysis)
       ),

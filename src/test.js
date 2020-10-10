@@ -3,8 +3,17 @@ const fs = require('fs');
 const bytes = fs.readFileSync(process.argv[2]);
 
 (async () => {
+  let instance;
   const module = await WebAssembly.compile(bytes);
-  const instance = await WebAssembly.instantiate(module, {
+  const readStringFromMem = (offset) => {
+    let str = '';
+    let buf = new Uint8Array(instance.exports.pagememory.buffer);
+    for (let i = offset; buf[i] > 0; i++) {
+      str += String.fromCharCode(buf[i]);
+    }
+    return str;
+  }
+  instance = await WebAssembly.instantiate(module, {
     env: {
       memory: new WebAssembly.Memory({ initial: 32767 }),
       table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
@@ -13,11 +22,11 @@ const bytes = fs.readFileSync(process.argv[2]);
       pause: () => {
         console.log("pause")
       },
-      loadImage: (a, b, c) => {
-        console.log("loadImage", a, b, c)
+      loadImage: (a, b, strOffset) => {
+        console.log("loadImage", a, b, readStringFromMem(strOffset))
       },
-      drawFrame: () => {
-        console.log("drawFrame")
+      drawFrame: (a) => {
+        console.log("drawFrame", a)
       },
       beginDraw: () => {
         console.log("beginDraw")
@@ -29,9 +38,9 @@ const bytes = fs.readFileSync(process.argv[2]);
         return Math.floor(Math.random() * i)
       },
     },
-    js: {
+    /*js: {
       mem: new WebAssembly.Memory({ initial: 32767 }),
-    }
+    }*/
   });
-  console.log(instance.exports.main(1, 5));
+  console.log(instance.exports.main());
 })();
