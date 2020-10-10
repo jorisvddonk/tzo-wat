@@ -90,7 +90,7 @@ export class Builder {
     input.forEach(i => {
       if (i.type === "push-string-instruction" && this.stringtable[i.value] === undefined) {
         this.stringtable[i.value] = this.strtbl_i;
-        this.strtbl_i += i.value.length;
+        this.strtbl_i += i.value.length + 1;
       }
     });
     let analysis: WasmExpression[] = analyzer.getExpressions() as WasmExpression[];
@@ -259,7 +259,7 @@ ${(this.convertInstruction({
 
   getDatas() {
     return Object.entries(this.stringtable).map(entry => {
-      return data(`(${i32.const(entry[1])})`, str(entry[0]));
+      return data(`(${i32.const(entry[1])})`, str(entry[0] + "\\00"));
     });
   }
 
