@@ -231,7 +231,7 @@ ${(this.convertInstruction({
 
   getDatas() {
     return Object.entries(this.stringtable).map(entry => {
-      return data(i32.const(entry[1]), str(entry[0]));
+      return data(`(${i32.const(entry[1])})`, str(entry[0]));
     });
   }
 
