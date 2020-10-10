@@ -46,6 +46,8 @@ export class Builder {
   wasm_module = sexp("module");
   stringtable: StringTable = {}
 
+  unknownInstructions = {};
+
   constructor(input: Instruction[]) {
     this.input = input;
     input.forEach(i => {
@@ -92,7 +94,12 @@ export class Builder {
         ]
 
       }
+
+
+      this.unknownInstructions[i.functionName] = (this.unknownInstructions[i.functionName] === undefined ? 0 : this.unknownInstructions[i.functionName]) + 1;
     }).flat(1).filter(i => i !== undefined);
+
+    console.warn(`Unknown instructions: ${JSON.stringify(this.unknownInstructions, null, 2)}`);
 
     this.wasm_module.nodes.push(
       imprt(str("js"), str("mem"), memory(1)),
