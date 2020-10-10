@@ -34,6 +34,7 @@ const i32 = {
   load: genStr("i32.load"),
   store: genStr("i32.store"),
   const: genStr("i32.const"),
+  eq: genStr("i32.eq"),
 }
 i32.toString = () => "i32";
 
@@ -97,6 +98,33 @@ export class Builder {
           local.get("$sA"),
           i32.store() // finally store
         ]
+      }
+      if (i.functionName === "not") {
+        return [
+          i32.const(1),
+          i32.eq(),
+          `if $I0 (result i32)`,
+          i32.const(0),
+          `else`,
+          i32.const(1),
+          `end`
+        ]
+      }
+      if (i.functionName === "+" || i.functionName === "plus") {
+        return [
+          i32.add()
+        ]
+      }
+      if (i.functionName === "nop") {
+        return [
+          `nop`
+        ]
+      }
+      if (i.functionName === "pause") {
+        return [
+          `call $pause`
+        ]
+      }
 
       if (this.imports.includes(i.functionName)) {
         return `call $${i.functionName}`;
