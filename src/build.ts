@@ -56,6 +56,34 @@ export class Builder {
       response: {
         in: ["string", "number"],
         out: []
+      },
+      optionEnabled: {
+        in: [
+          "string"
+        ],
+        out: [
+          "number"
+        ]
+      },
+      optionDisabled: {
+        in: [
+          "string"
+        ],
+        out: [
+          "number"
+        ]
+      },
+      disableOption: {
+        in: [
+          "string"
+        ],
+        out: []
+      },
+      enableOption: {
+        in: [
+          "string"
+        ],
+        out: []
       }
     });
     this.input = input;
