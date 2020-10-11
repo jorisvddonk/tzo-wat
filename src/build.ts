@@ -157,6 +157,11 @@ end`;
     if (expression.type === "string_literal") {
       return this.convertInstruction({ type: "push-string-instruction", value: expression.value });
     }
+    if (expression.type === "function" && expression.value === "goto") {
+      // skip gotos!
+      this.unknownInstructions["goto"] = (this.unknownInstructions["goto"] === undefined ? 0 : this.unknownInstructions["goto"]) + 1;
+      return ``;
+    }
     return `${this.treeToString(expression.children as WasmExpression[])}
 ${(this.convertInstruction({
       type: "invoke-function-instruction",
