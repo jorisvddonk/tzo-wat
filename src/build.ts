@@ -44,6 +44,18 @@ export class Builder {
           "number"
         ],
         out: []
+      },
+      getResponse: {
+        in: [],
+        out: []
+      },
+      emit: {
+        in: ["string | number"],
+        out: []
+      },
+      response: {
+        in: ["string", "number"],
+        out: []
       }
     });
     this.input = input;
@@ -227,6 +239,7 @@ export class Builder {
 
     console.warn(`Unknown instructions: ${JSON.stringify(this.unknownInstructions, null, 2)}`);
 
+    this.module.optimize();
     return this.module.emitText();
   }
 
