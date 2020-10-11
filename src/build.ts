@@ -125,6 +125,14 @@ export class Builder {
         }
       }
       const ei = expressions[i] as any;
+      if (ei.type === "function" && ei.value === "setContext") {
+        /*
+        In Tzo, `setContext` pops off the ADDRESS before the VALUE.
+        In WASM, `.store` pops off the VALUE before the ADDRESS.
+        Thus, we need to swap the children for WebAssembly compat.
+        */
+        ei.children = ei.children.reverse();
+      }
       retval.unshift({
         type: ei.type,
         value: ei.value,
@@ -188,19 +196,7 @@ ${(this.convertInstruction({
       return i32.load();
     }
     if (i.type === "invoke-function-instruction" && i.functionName === "setContext") {
-      /*
-      In Tzo, `setContext` pops off the ADDRESS before the VALUE.
-      In WASM, `.load` pops off the VALUE before the ADDRESS.
-      Thus, we need to swap the top two items for WebAssembly compat.
-      We use locals $sA and $sB for this
-      */
-      return c([
-        local.set("$sA"),
-        local.set("$sB"),
-        local.get("$sB"),
-        local.get("$sA"),
-        i32.store() // finally store
-      ]);
+      return i32.store("align=2");
     }
     if (i.type === "invoke-function-instruction" && i.functionName === "or") {
       return c([
