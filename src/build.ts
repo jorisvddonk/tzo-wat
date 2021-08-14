@@ -2,7 +2,7 @@ import { Instruction } from "tzo";
 import 'array-flat-polyfill';
 import { Analyzer } from "tzo-analyze";
 import { Expression } from "tzo-analyze/dist/interfaces";
-import binaryen from "binaryen";
+import binaryen, { Type } from "binaryen";
 
 interface StringTable {
   [key: string]: number
@@ -195,13 +195,13 @@ export class Builder {
       return this.module.i32.eq(this.expressionToBinaryen(children[0]), this.expressionToBinaryen(children[1]));
     } else if (expression.value === "not") {
       assertLength(expression.children, 1, "(not)");
-      return this.module.if(this.module.i32.eq(this.expressionToBinaryen(children[0]), this.module.i32.const(1)), this.module.i32.const(0), this.module.i32.const(1))
+      return this.module.if(this.module.i32.eq(this.expressionToBinaryen(children[0]), this.module.i32.const(0)), this.module.i32.const(1), this.module.i32.const(0))
     } else if (expression.value === "+" || expression.value === "plus") {
       assertLength(expression.children, 2, "(plus)");
       return this.module.i32.add(this.expressionToBinaryen(children[0]), this.expressionToBinaryen(children[1]));
     } else if (expression.value === "-" || expression.value === "min") {
       assertLength(expression.children, 2, "(min)");
-      return this.module.i32.sub(this.expressionToBinaryen(children[0]), this.expressionToBinaryen(children[1]));
+      return this.module.i32.sub(this.expressionToBinaryen(children[1]), this.expressionToBinaryen(children[0]));
     } else if (expression.value === "*" || expression.value === "mul") {
       assertLength(expression.children, 2, "(mul)");
       return this.module.i32.mul(this.expressionToBinaryen(children[0]), this.expressionToBinaryen(children[1]));
@@ -257,17 +257,23 @@ export class Builder {
     });
   }
 
-  build() {
+  build(expectedStackResult?: Array<Type>) {
+    console.log(this.analysis);
+
     this.module.setMemory(1, 1, "pagememory", this.getDatas_binaryen());
 
-    this.module.addFunction("main", binaryen.createType([]), binaryen.none, [binaryen.i32, binaryen.i32], this.module.block(null,
-      this.treeToBinaryen(this.analysis)
+    const resultType = expectedStackResult !== undefined ? binaryen.createType(expectedStackResult) : binaryen.none;
+    binaryen.expandType
+    this.module.addFunction("main", binaryen.createType([]), resultType, [binaryen.i32, binaryen.i32], this.module.block(null,
+      this.treeToBinaryen(this.analysis), resultType
     ));
     this.module.addFunctionExport("main", "main");
 
-    console.warn(`Unknown instructions: ${JSON.stringify(this.unknownInstructions, null, 2)}`);
+    if (Object.keys(this.unknownInstructions).length > 0) {
+      console.warn(`Unknown instructions: ${JSON.stringify(this.unknownInstructions, null, 2)}`);
+    }
 
-    this.module.optimize();
+    //this.module.optimize();
     return this.module.emitText();
   }
 
