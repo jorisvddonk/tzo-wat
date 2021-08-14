@@ -34,6 +34,9 @@ const bytes = fs.readFileSync(process.argv[2]);
       endDraw: () => {
         console.log("endDraw")
       },
+      emit: (a) => {
+        console.log("emit", a)
+      },
       randInt: (i) => {
         return Math.floor(Math.random() * i)
       },
