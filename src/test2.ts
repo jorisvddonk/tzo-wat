@@ -17,7 +17,7 @@ if (input_file.expected.stack) {
 }
 wabt().then(w => {
   const wasm_text = builder.build(expectedStackResultType).toString();
-  //console.log(wasm_text);
+  console.log(wasm_text);
   const module = w.parseWat('stdin', wasm_text);
   module.resolveNames()
   //module.validate();
@@ -50,6 +50,9 @@ wabt().then(w => {
   let retval = instance.exports.main();
   if (typeof retval === "number") {
     retval = [retval];
+  }
+  if (typeof retval === "undefined") {
+    retval = [];
   }
   if (input_file.expected.stack !== undefined) {
     const got = JSON.stringify(retval);
