@@ -20,4 +20,5 @@ builder.declareImport("endDraw");
 builder.declareImport("getResponse");
 builder.declareImport("emit", [`(param i32)`]);
 builder.declareImport("response", [`(param i32)`, `(param i32)`]);
+builder.declareImport("exit");
 fs.writeFileSync(program.output, builder.build().toString());
