@@ -205,6 +205,9 @@ export class Builder {
     } else if (expression.value === "*" || expression.value === "mul") {
       assertLength(expression.children, 2, "(mul)");
       return this.module.i32.mul(this.expressionToBinaryen(children[0]), this.expressionToBinaryen(children[1]));
+    } else if (expression.value === "dup") {
+      assertLength(expression.children, 1, "(dup)");
+      return this.module.block(null, [this.module.local.tee(0, this.expressionToBinaryen(children[0]), binaryen.i32), this.module.local.get(0, binaryen.i32)], binaryen.createType([binaryen.i32, binaryen.i32]));
     } else if (expression.value === "nop") {
       return this.module.nop();
     }
@@ -215,6 +218,14 @@ export class Builder {
       return this.module.call(expression.value, params, b_import.result);
     }
 
+    // unimplemented functions:
+    // ppc --> cannot implement this at all, right?
+    // concat --> need proper string vs number support
+    // rconcat --> see concat
+    // lt --> TODO
+    // gt --> TODO (30.json)
+    // pop --> TODO (65.json)
+    // 
     throw new Error(`Unimplemented Tzo parsed code type/value: ${expression.type} // ${expression.value}`);
   }
 
