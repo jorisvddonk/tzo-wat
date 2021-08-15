@@ -71,6 +71,9 @@ async function testFile(filename, verbose: boolean) {
       assert(got === expected, `main() return value (${got}) needs to be equal to expected stack value (${expected}) -- ${filename}`);
       console.log(`Test passed! ${filename}`);
     }
+    if (input_file.expected.context !== undefined) {
+      // TODO
+    }
   });
 }
 
