@@ -184,11 +184,9 @@ export class Builder {
       return this.module.i32.store(0, 2, this.expressionToBinaryen(children[0]), this.expressionToBinaryen(children[1]))
     } else if (expression.value === "or") {
       assertLength(expression.children, 2, "(or)");
-      // TODO: align with actual Tzo spec!!? (needs testing!)
       return this.module.i32.or(this.module.i32.ne(this.module.i32.const(0), this.expressionToBinaryen(children[0])), this.module.i32.ne(this.module.i32.const(0), this.expressionToBinaryen(children[1])));
     } else if (expression.value === "and") {
       assertLength(expression.children, 2, "(and)");
-      // TODO: align with actual Tzo spec!!? (needs testing!)
       return this.module.i32.and(this.module.i32.ne(this.module.i32.const(0), this.expressionToBinaryen(children[0])), this.module.i32.ne(this.module.i32.const(0), this.expressionToBinaryen(children[1])));
     } else if (expression.value === "eq") {
       assertLength(expression.children, 2, "(eq)");
