@@ -188,6 +188,12 @@ export class Builder {
     } else if (expression.value === "and") {
       assertLength(expression.children, 2, "(and)");
       return this.module.i32.and(this.module.i32.ne(this.module.i32.const(0), this.expressionToBinaryen(children[0])), this.module.i32.ne(this.module.i32.const(0), this.expressionToBinaryen(children[1])));
+    } else if (expression.value === "lt") {
+      assertLength(expression.children, 2, "(lt)");
+      return this.module.i32.lt_s(this.expressionToBinaryen(children[1]), this.expressionToBinaryen(children[0]));
+    } else if (expression.value === "gt") {
+      assertLength(expression.children, 2, "(gt)");
+      return this.module.i32.gt_s(this.expressionToBinaryen(children[1]), this.expressionToBinaryen(children[0]));
     } else if (expression.value === "eq") {
       assertLength(expression.children, 2, "(eq)");
       return this.module.i32.eq(this.expressionToBinaryen(children[0]), this.expressionToBinaryen(children[1]));
@@ -223,10 +229,7 @@ export class Builder {
     // ppc --> cannot implement this at all, right?
     // concat --> need proper string vs number support
     // rconcat --> see concat
-    // lt --> TODO
-    // gt --> TODO (30.json)
-    // pop --> TODO (65.json)
-    // 
+    // stacksize --> this requires some decent amount of code analysis to implement :)
     throw new Error(`Unimplemented Tzo parsed code type/value: ${expression.type} // ${expression.value}`);
   }
 
@@ -270,7 +273,7 @@ export class Builder {
   }
 
   build(expectedStackResult?: Array<Type>) {
-    console.log(this.analysis);
+    //console.log(this.analysis);
 
     this.module.setMemory(1, 1, "pagememory", this.getDatas_binaryen());
 
