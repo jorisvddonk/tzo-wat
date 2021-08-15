@@ -7,6 +7,13 @@ import binaryen from "binaryen";
 import { assert } from "console";
 import glob from "glob";
 
+program
+  .version('0.0.1')
+  .option('--input <globstr>', "Load Tzo VM test .json file")
+  .option('--verbose', "Verbose logging", false)
+  .parse(process.argv);
+
+
 async function testFile(filename, verbose: boolean) {
   const input_file = JSON.parse(fs.readFileSync(filename).toString());
 
@@ -67,16 +74,16 @@ async function testFile(filename, verbose: boolean) {
   });
 }
 
-async function main(verbose) {
-  await glob(process.argv[2], {}, async (err, files) => {
+async function main() {
+  await glob(program.input, {}, async (err, files) => {
     console.log(`Processing files: ${files}`);
     if (err) {
       throw err
     }
     for await (const it of files) {
-      await testFile(it, verbose);
+      await testFile(it, program.verbose);
     }
   });
 }
 
-main(false);
+main();
