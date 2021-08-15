@@ -4,6 +4,18 @@ import { Analyzer } from "tzo-analyze";
 import { Expression } from "tzo-analyze/dist/interfaces";
 import binaryen, { Type } from "binaryen";
 
+// unimplemented features:
+// strings on stack
+
+// unimplemented functions:
+// ppc --> cannot implement this at all, right?
+// concat --> need proper string vs number support
+// rconcat --> see concat
+// stacksize --> this requires some decent amount of code analysis to implement :)
+// delContext
+// jz --> cannot implement?
+// jgz --> cannot implement?
+
 interface StringTable {
   [key: string]: number
 }
@@ -225,11 +237,6 @@ export class Builder {
       return this.module.call(expression.value, params, b_import.result);
     }
 
-    // unimplemented functions:
-    // ppc --> cannot implement this at all, right?
-    // concat --> need proper string vs number support
-    // rconcat --> see concat
-    // stacksize --> this requires some decent amount of code analysis to implement :)
     throw new Error(`Unimplemented Tzo parsed code type/value: ${expression.type} // ${expression.value}`);
   }
 
@@ -278,7 +285,7 @@ export class Builder {
     this.module.setMemory(1, 1, "pagememory", this.getDatas_binaryen());
 
     const resultType = expectedStackResult !== undefined ? binaryen.createType(expectedStackResult) : binaryen.none;
-    binaryen.expandType
+
     this.module.addFunction("main", binaryen.createType([]), resultType, [binaryen.i32, binaryen.i32], this.module.block(null,
       this.treeToBinaryen(this.analysis), resultType
     ));

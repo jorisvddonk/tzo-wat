@@ -68,7 +68,7 @@ async function testFile(filename, verbose: boolean) {
     if (input_file.expected.stack !== undefined) {
       const got = JSON.stringify(retval);
       const expected = JSON.stringify(input_file.expected.stack);
-      assert(got === expected, `main() return value (${got}) needs to be equal to expected stack value (${expected})`);
+      assert(got === expected, `main() return value (${got}) needs to be equal to expected stack value (${expected}) -- ${filename}`);
       console.log(`Test passed! ${filename}`);
     }
   });
@@ -81,7 +81,11 @@ async function main() {
       throw err
     }
     for await (const it of files) {
-      await testFile(it, program.verbose);
+      try {
+        await testFile(it, program.verbose);
+      } catch (e) {
+        console.error(e);
+      }
     }
   });
 }
