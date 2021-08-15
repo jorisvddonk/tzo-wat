@@ -208,6 +208,9 @@ export class Builder {
     } else if (expression.value === "dup") {
       assertLength(expression.children, 1, "(dup)");
       return this.module.block(null, [this.module.local.tee(0, this.expressionToBinaryen(children[0]), binaryen.i32), this.module.local.get(0, binaryen.i32)], binaryen.createType([binaryen.i32, binaryen.i32]));
+    } else if (expression.value === "pop") {
+      assertLength(expression.children, 1, "(pop)");
+      return this.module.drop(this.expressionToBinaryen(children[0]));
     } else if (expression.value === "nop") {
       return this.module.nop();
     }
