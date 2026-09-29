@@ -3,6 +3,7 @@ import program from "commander";
 import { Builder, HostImport } from "./build";
 import { parseConcise } from "./tokenizer";
 import { testHosts, HostCtx } from "./hosts";
+import { samples } from "./samples";
 import wabt from "wabt";
 import glob from "glob";
 import { Instruction } from "tzo";
@@ -13,6 +14,7 @@ const WebAssemblyAny = (globalThis as any).WebAssembly;
 program
   .version('0.0.1')
   .option('--input <globstr>', "Load Tzo VM test .json file(s)", "vendor/tzo/src/tests/*.json")
+  .option('--samples', "Run the built-in web samples instead of files", false)
   .option('--verbose', "Verbose logging", false)
   .parse(process.argv);
 
@@ -51,33 +53,36 @@ let passed = 0;
 let failed = 0;
 const failures: string[] = [];
 
-async function testFile(filename: string, verbose: boolean, w: any) {
-  const input_file = JSON.parse(fs.readFileSync(filename).toString());
-  const instructions: Instruction[] =
-    input_file.code !== undefined ? parseConcise(input_file.code).instructions : input_file.input_program;
+interface CaseOptions {
+  name: string;
+  instructions: Instruction[];
+  labelMap: { [key: string]: number };
+  initialContext: { [key: string]: any };
+  hostNames: string[];
+  expected: { stack?: any[]; context?: any; programCounter?: number; calls?: any[] };
+  verbose: boolean;
+  w: any;
+}
 
-  const hostNames: string[] = Array.from(new Set(["randInt"].concat(input_file.host || [])));
-  for (const name of hostNames) {
-    if (testHosts[name] === undefined) {
-      throw new Error(`unknown test host function: ${name}`);
+async function runCase(opts: CaseOptions) {
+  const { name, instructions, labelMap, initialContext, expected, verbose, w } = opts;
+  const hostNames = Array.from(new Set(["randInt"].concat(opts.hostNames)));
+  for (const hostName of hostNames) {
+    if (testHosts[hostName] === undefined) {
+      throw new Error(`unknown test host function: ${hostName}`);
     }
   }
 
   const hostImports: { [key: string]: HostImport } = {};
-  for (const name of hostNames) {
-    hostImports[name] = {
-      params: testHosts[name].params,
-      result: testHosts[name].result,
-      resultKind: testHosts[name].resultKind,
+  for (const hostName of hostNames) {
+    hostImports[hostName] = {
+      params: testHosts[hostName].params,
+      result: testHosts[hostName].result,
+      resultKind: testHosts[hostName].resultKind,
     };
   }
 
-  const builder = new Builder(
-    instructions,
-    labelMapOf(instructions),
-    input_file.initial_context !== undefined ? input_file.initial_context : {},
-    hostImports
-  );
+  const builder = new Builder(instructions, labelMap, initialContext, hostImports);
   const wasm_text = builder.build();
   if (verbose) {
     console.log(wasm_text);
@@ -100,20 +105,20 @@ async function testFile(filename: string, verbose: boolean, w: any) {
   };
 
   const imports: any = {};
-  for (const name of hostNames) {
-    const host = testHosts[name];
-    imports[name] = (...raw: number[]) => {
+  for (const hostName of hostNames) {
+    const host = testHosts[hostName];
+    imports[hostName] = (...raw: number[]) => {
       const decoded = raw.map((v, i) => {
         const kind = host.argKinds !== undefined ? host.argKinds[i] : "number";
         return kind === "string" ? readStringFromMem(instance.exports.pagememory.buffer, v) : v;
       });
-      recorded.push({ name, args: decoded });
+      recorded.push({ name: hostName, args: decoded });
       const result = host.impl(raw, ctx);
       return host.result !== undefined ? result : undefined;
     };
   }
 
-  const module = w.parseWat(filename, wasm_text);
+  const module = w.parseWat(name, wasm_text);
   const binary = module.toBinary({});
   const compiled = await WebAssemblyAny.compile(binary.buffer);
   instance = await WebAssemblyAny.instantiate(compiled, { imports });
@@ -122,7 +127,6 @@ async function testFile(filename: string, verbose: boolean, w: any) {
   instance.exports.main();
 
   const errors: string[] = [];
-  const expected = input_file.expected || {};
 
   const gotStack: any[] = [];
   const stackSize = instance.exports.stack_size();
@@ -165,7 +169,7 @@ async function testFile(filename: string, verbose: boolean, w: any) {
 
   if (errors.length > 0) {
     failed++;
-    failures.push(`${filename}\n    ${errors.join("\n    ")}`);
+    failures.push(`${name}\n    ${errors.join("\n    ")}`);
     if (verbose) {
       console.log(wasm_text);
     }
@@ -174,21 +178,60 @@ async function testFile(filename: string, verbose: boolean, w: any) {
   }
 }
 
-async function main() {
-  const files: string[] = await new Promise((resolve, reject) => {
-    glob(program.input, {}, (err, matches) => (err ? reject(err) : resolve(matches)));
+async function testFile(filename: string, verbose: boolean, w: any) {
+  const input_file = JSON.parse(fs.readFileSync(filename).toString());
+  const instructions: Instruction[] =
+    input_file.code !== undefined ? parseConcise(input_file.code).instructions : input_file.input_program;
+  await runCase({
+    name: filename,
+    instructions,
+    labelMap: labelMapOf(instructions),
+    initialContext: input_file.initial_context !== undefined ? input_file.initial_context : {},
+    hostNames: input_file.host || [],
+    expected: input_file.expected || {},
+    verbose,
+    w,
   });
-  files.sort();
+}
+
+async function main() {
   const w = await wabt();
-  for (const file of files) {
-    try {
-      await testFile(file, program.verbose, w);
-    } catch (e) {
-      failed++;
-      failures.push(`${file}\n    threw: ${e}`);
+
+  if (program.samples) {
+    for (const sample of samples) {
+      try {
+        const { instructions } = parseConcise(sample.code);
+        await runCase({
+          name: `sample: ${sample.name}`,
+          instructions,
+          labelMap: labelMapOf(instructions),
+          initialContext: {},
+          hostNames: [],
+          expected: sample.expected !== undefined ? { stack: sample.expected } : {},
+          verbose: program.verbose,
+          w,
+        });
+      } catch (e) {
+        failed++;
+        failures.push(`sample: ${sample.name}\n    threw: ${e}`);
+      }
+    }
+  } else {
+    const files: string[] = await new Promise((resolve, reject) => {
+      glob(program.input, {}, (err, matches) => (err ? reject(err) : resolve(matches)));
+    });
+    files.sort();
+    for (const file of files) {
+      try {
+        await testFile(file, program.verbose, w);
+      } catch (e) {
+        failed++;
+        failures.push(`${file}\n    threw: ${e}`);
+      }
     }
   }
-  console.log(`\n${passed} passed, ${failed} failed (out of ${files.length})`);
+
+  console.log(`\n${passed} passed, ${failed} failed (out of ${passed + failed})`);
   if (failures.length > 0) {
     console.log("\nFailures:\n" + failures.join("\n"));
     process.exitCode = 1;

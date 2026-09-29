@@ -1,8 +1,7 @@
 import wabt from "wabt";
 import { Builder, HostImport } from "../src/build";
 import { parseConcise } from "../src/tokenizer";
-
-const DEFAULT_CODE = `1 1 + 2 eq jgz { "1 + 1 = 2!" }`;
+import { samples } from "../src/samples";
 
 const hostImports: { [key: string]: HostImport } = {
   loadImage: { params: ["f64", "f64", "f64"] },
@@ -32,6 +31,7 @@ const downloadEl: HTMLAnchorElement = $("download");
 const runBtn: HTMLButtonElement = $("run");
 const compileBtn: HTMLButtonElement = $("compile");
 const assembleBtn: HTMLButtonElement = $("assemble");
+const samplesEl: HTMLSelectElement = $("samples");
 
 let lastWasm: Uint8Array | null = null;
 
@@ -154,5 +154,30 @@ runBtn.addEventListener("click", async () => {
   }
 });
 
-inputEl.value = DEFAULT_CODE;
-watEl.value = "// press \u201cCompile\u201d";
+samples.forEach((sample, index) => {
+  const option = document.createElement("option");
+  option.value = String(index);
+  option.textContent = sample.name;
+  option.title = sample.description;
+  samplesEl.appendChild(option);
+});
+
+samplesEl.addEventListener("change", () => {
+  inputEl.value = samples[Number(samplesEl.value)].code;
+  try {
+    compile();
+    statusEl.textContent = "compiled to wat";
+    statusEl.className = "ok";
+  } catch (e) {
+    statusEl.textContent = String(e);
+    statusEl.className = "error";
+  }
+});
+
+inputEl.value = samples[0].code;
+try {
+  compile();
+} catch (e) {
+  statusEl.textContent = String(e);
+  statusEl.className = "error";
+}

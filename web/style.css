@@ -101,6 +101,19 @@ button {
 button:hover { border-color: var(--accent); }
 button:active { transform: translateY(1px); }
 
+select {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+select:hover { border-color: var(--accent); }
+
 #status { font-size: 13px; font-family: var(--mono); }
 #status.ok { color: var(--ok); }
 #status.error { color: var(--error); }

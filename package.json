@@ -7,7 +7,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "tsc",
-    "test": "ts-node src/test2.ts && ts-node src/test2.ts --input 'tests/*.json'",
+    "test": "ts-node src/test2.ts && ts-node src/test2.ts --input 'tests/*.json' && ts-node src/test2.ts --samples",
     "start": "ts-node src/cli.ts",
     "build:web": "esbuild web/main.ts --bundle --minify --format=iife --platform=browser --target=es2020 --alias:fs=./web/empty.js --alias:path=./web/empty.js --outfile=web/dist/app.js",
     "ts-node": "ts-node"
