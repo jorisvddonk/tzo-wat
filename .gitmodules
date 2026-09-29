@@ -1,0 +1,3 @@
+[submodule "vendor/tzo"]
+	path = vendor/tzo
+	url = https://github.com/jorisvddonk/tzo

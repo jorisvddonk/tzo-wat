@@ -1,6 +1,7 @@
 import fs from "fs";
 import program from "commander";
-import { Builder } from "./build";
+import { Builder, HostImport } from "./build";
+import { Instruction } from "tzo";
 
 program
   .version('0.0.1')
@@ -10,15 +11,32 @@ program
 
 const input_file = JSON.parse(fs.readFileSync(program.input).toString());
 
-const builder = new Builder(input_file.programList);
-builder.declareImport("pause");
-builder.declareImport("loadImage", [`(param i32)`, `(param i32)`, `(param i32)`]);
-builder.declareImport("beginDraw");
-builder.declareImport("drawFrame", [`(param i32)`]);
-builder.declareImport("randInt", [`(param i32)`], [`(result i32)`]);
-builder.declareImport("endDraw");
-builder.declareImport("getResponse");
-builder.declareImport("emit", [`(param i32)`]);
-builder.declareImport("response", [`(param i32)`, `(param i32)`]);
-builder.declareImport("exit");
-fs.writeFileSync(program.output, builder.build().toString());
+const hostImports: { [key: string]: HostImport } = {
+  loadImage: { params: ["f64", "f64", "f64"] },
+  beginDraw: { params: [] },
+  drawFrame: { params: ["f64"] },
+  randInt: { params: ["f64"], result: "f64" },
+  endDraw: { params: [] },
+  getResponse: { params: [], result: "f64" },
+  emit: { params: ["f64"] },
+  response: { params: ["f64", "f64"] },
+  optionEnabled: { params: ["f64"], result: "f64" },
+  optionDisabled: { params: ["f64"], result: "f64" },
+  disableOption: { params: ["f64"] },
+  enableOption: { params: ["f64"] },
+};
+
+const labelMap: { [key: string]: number } = Object.assign({}, input_file.labelMap);
+(input_file.programList as Instruction[]).forEach((instr: any, i: number) => {
+  if (instr.label !== undefined) {
+    labelMap[instr.label] = i;
+  }
+});
+
+const builder = new Builder(
+  input_file.programList,
+  labelMap,
+  input_file.context !== undefined ? input_file.context : {},
+  hostImports
+);
+fs.writeFileSync(program.output, builder.build());
