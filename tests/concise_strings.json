@@ -1,0 +1,6 @@
+{
+  "code": "\"Hello\" \",\" \" world!\" rconcat rconcat",
+  "expected": {
+    "stack": ["Hello, world!"]
+  }
+}

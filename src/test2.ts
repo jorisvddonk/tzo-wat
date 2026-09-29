@@ -1,6 +1,7 @@
 import fs from "fs";
 import program from "commander";
 import { Builder, HostImport } from "./build";
+import { parseConcise } from "./tokenizer";
 import { testHosts, HostCtx } from "./hosts";
 import wabt from "wabt";
 import glob from "glob";
@@ -52,7 +53,8 @@ const failures: string[] = [];
 
 async function testFile(filename: string, verbose: boolean, w: any) {
   const input_file = JSON.parse(fs.readFileSync(filename).toString());
-  const instructions: Instruction[] = input_file.input_program;
+  const instructions: Instruction[] =
+    input_file.code !== undefined ? parseConcise(input_file.code).instructions : input_file.input_program;
 
   const hostNames: string[] = Array.from(new Set(["randInt"].concat(input_file.host || [])));
   for (const name of hostNames) {
@@ -120,6 +122,7 @@ async function testFile(filename: string, verbose: boolean, w: any) {
   instance.exports.main();
 
   const errors: string[] = [];
+  const expected = input_file.expected || {};
 
   const gotStack: any[] = [];
   const stackSize = instance.exports.stack_size();
@@ -138,25 +141,25 @@ async function testFile(filename: string, verbose: boolean, w: any) {
     gotContext[key] = tag === 1 ? readStringFromMem(instance.exports.pagememory.buffer, val) : val;
   }
 
-  if (input_file.expected.stack !== undefined) {
-    if (!deepEqual(gotStack, input_file.expected.stack)) {
-      errors.push(`stack: got ${JSON.stringify(gotStack)} expected ${JSON.stringify(input_file.expected.stack)}`);
+  if (expected.stack !== undefined) {
+    if (!deepEqual(gotStack, expected.stack)) {
+      errors.push(`stack: got ${JSON.stringify(gotStack)} expected ${JSON.stringify(expected.stack)}`);
     }
   }
-  if (input_file.expected.context !== undefined) {
-    if (!deepEqual(gotContext, input_file.expected.context)) {
-      errors.push(`context: got ${JSON.stringify(gotContext)} expected ${JSON.stringify(input_file.expected.context)}`);
+  if (expected.context !== undefined) {
+    if (!deepEqual(gotContext, expected.context)) {
+      errors.push(`context: got ${JSON.stringify(gotContext)} expected ${JSON.stringify(expected.context)}`);
     }
   }
-  if (input_file.expected.programCounter !== undefined) {
+  if (expected.programCounter !== undefined) {
     const gotPc = instance.exports.get_pc();
-    if (gotPc !== input_file.expected.programCounter) {
-      errors.push(`programCounter: got ${gotPc} expected ${input_file.expected.programCounter}`);
+    if (gotPc !== expected.programCounter) {
+      errors.push(`programCounter: got ${gotPc} expected ${expected.programCounter}`);
     }
   }
-  if (input_file.expected.calls !== undefined) {
-    if (!deepEqual(recorded, input_file.expected.calls)) {
-      errors.push(`host calls: got ${JSON.stringify(recorded)} expected ${JSON.stringify(input_file.expected.calls)}`);
+  if (expected.calls !== undefined) {
+    if (!deepEqual(recorded, expected.calls)) {
+      errors.push(`host calls: got ${JSON.stringify(recorded)} expected ${JSON.stringify(expected.calls)}`);
     }
   }
 

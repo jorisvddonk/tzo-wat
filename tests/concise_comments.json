@@ -1,0 +1,6 @@
+{
+  "code": "// line comment\n1 /* block\n comment */ 2 +\n",
+  "expected": {
+    "stack": [3]
+  }
+}

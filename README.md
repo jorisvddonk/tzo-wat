@@ -55,6 +55,27 @@ string pointers passed in, and string pointers returned. A fixture can request h
 with `"host": ["addOne", ...]` and assert the recorded invocations with `"expected": { "calls":
 [{ "name": "addOne", "args": [41] }] }`.
 
+A fixture may use `"input_program"` (Standard Representation) or `"code"` (concise syntax);
+the `code` fixtures in `tests/` also cover the tokenizer (labels, decimals, comments, strings).
+
+## Web version
+
+There is a static, browser-only version in `web/`: paste Tzo code, compile it to wat, assemble
+it to wasm, and run it — all client-side. Build the bundle and open the page:
+
+```sh
+npm run build:web
+# then either open web/index.html directly, or serve it:
+python3 -m http.server -d web 8000
+```
+
+The page accepts Tzo concise syntax, which is parsed by `src/tokenizer.ts` (suffix labels,
+decimal numbers, string escapes, and line/block comments, matching the tzo ConciseText grammar).
+`wabt` is compiled into the bundle, so no server or network access is needed at runtime.
+
+`.github/workflows/pages.yml` builds the bundle and deploys `web/` to GitHub Pages on every push
+to `main`.
+
 ## Runtime layout
 
 The generated module keeps everything in linear memory:

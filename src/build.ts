@@ -1,4 +1,4 @@
-import { Instruction } from "tzo";
+import type { Instruction } from "tzo";
 
 export type WasmType = "f64" | "i32";
 
@@ -21,6 +21,8 @@ const DATA_BASE = 1114112;
 
 const NUM = 0;
 const STR = 1;
+
+const utf8 = new TextEncoder();
 
 interface BraceMap {
   [open: number]: number;
@@ -74,7 +76,7 @@ export class Builder {
     if (existing !== undefined) return existing;
     const offset = this.dataOffset;
     this.strings.set(s, offset);
-    this.dataOffset += Buffer.from(s, "utf8").length + 1;
+    this.dataOffset += utf8.encode(s).length + 1;
     return offset;
   }
 
@@ -99,7 +101,7 @@ export class Builder {
   }
 
   private watString(s: string): string {
-    const bytes = Array.from(Buffer.from(s, "utf8"));
+    const bytes = Array.from(utf8.encode(s));
     return '"' + bytes.map(b => "\\" + b.toString(16).padStart(2, "0")).join("") + "\\00" + '"';
   }
 
@@ -550,5 +552,10 @@ ${dispatch}
 )
 ${this.dataSegments()})
 `;
+  }
+
+  /** Names of functions that were invoked but are neither standard opcodes nor declared host imports. */
+  getWarnings(): string[] {
+    return Array.from(new Set(this.warnings));
   }
 }

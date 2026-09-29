@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tzo → Wat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Tzo → Wat</h1>
+    <p class="subtitle">
+      Compile <a href="https://github.com/jorisvddonk/tzo">Tzo</a> code to a self-contained
+      WebAssembly text module, assemble it to <code>.wasm</code>, and run it — entirely in your browser.
+    </p>
+  </header>
+
+  <main class="panes">
+    <section class="pane">
+      <div class="pane-head">
+        <label for="input">Tzo code</label>
+      </div>
+      <textarea id="input" spellcheck="false"></textarea>
+      <div class="toolbar">
+        <button id="compile">Compile to wat</button>
+        <button id="assemble">Assemble to wasm</button>
+        <button id="run">Run</button>
+        <span id="status"></span>
+      </div>
+      <a id="download" style="display:none" download>download</a>
+      <div id="warnings" class="warnings" style="display:none"></div>
+      <pre id="run-output" class="run-output"></pre>
+    </section>
+
+    <section class="pane">
+      <div class="pane-head">
+        <label for="wat">WebAssembly (wat)</label>
+      </div>
+      <textarea id="wat" spellcheck="false" readonly></textarea>
+    </section>
+  </main>
+
+  <script src="dist/app.js"></script>
+</body>
+</html>

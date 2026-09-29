@@ -1,0 +1,6 @@
+{
+  "code": "\"myLabel\" goto \"foo\" \"bar\" \"baz\" \"quux\" #myLabel exit",
+  "expected": {
+    "stack": ["quux"]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "code": "0 \"i\" setContext 3 #loop \"i\" getContext lt jgz { \"i\" getContext 1 + \"i\" setContext \"loop\" goto } \"i\" getContext",
+  "expected": {
+    "stack": [3]
+  }
+}
