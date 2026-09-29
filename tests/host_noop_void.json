@@ -1,0 +1,14 @@
+{
+  "input_program": [
+    { "type": "push-number-instruction", "value": 1 },
+    { "type": "push-number-instruction", "value": 2 },
+    { "type": "invoke-function-instruction", "functionName": "noop" }
+  ],
+  "host": ["noop"],
+  "expected": {
+    "stack": [1, 2],
+    "calls": [
+      { "name": "noop", "args": [] }
+    ]
+  }
+}

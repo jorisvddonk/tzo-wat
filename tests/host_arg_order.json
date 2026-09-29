@@ -1,0 +1,14 @@
+{
+  "input_program": [
+    { "type": "push-number-instruction", "value": 10 },
+    { "type": "push-number-instruction", "value": 3 },
+    { "type": "invoke-function-instruction", "functionName": "sub" }
+  ],
+  "host": ["sub"],
+  "expected": {
+    "stack": [7],
+    "calls": [
+      { "name": "sub", "args": [10, 3] }
+    ]
+  }
+}

@@ -1,10 +1,12 @@
 import { Instruction } from "tzo";
 
-type WasmType = "f64" | "i32";
+export type WasmType = "f64" | "i32";
 
 export interface HostImport {
   params: WasmType[];
   result?: WasmType;
+  /** Whether a non-void result should be pushed as a number or a string. Defaults to "number". */
+  resultKind?: "number" | "string";
 }
 
 const VALUE_BASE = 0;
@@ -260,6 +262,9 @@ export class Builder {
           }
           const args = hi.params.map((_, k) => `(local.get $p${k})`).join(" ");
           if (hi.result) {
+            if (hi.resultKind === "string") {
+              return `${pops}(call $push_str (call $${name} ${args})) ${this.defaultAdvance()}`;
+            }
             return `${pops}(call $push_num (call $${name} ${args})) ${this.defaultAdvance()}`;
           }
           return `${pops}(call $${name} ${args}) ${this.defaultAdvance()}`;
@@ -487,6 +492,7 @@ export class Builder {
    (local.set $i (i32.add (local.get $i) (i32.const 1)))
    (br $l))))
 
+ (func (export "alloc") (param $n i32) (result i32) (call $alloc (local.get $n)))
  (func (export "stack_size") (result i32) (global.get $sp))
  (func (export "stack_tag") (param $i i32) (result i32)
   (i32.load (i32.add (i32.const ${TAG_BASE}) (i32.mul (local.get $i) (i32.const 4)))))

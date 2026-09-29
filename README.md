@@ -1,6 +1,6 @@
 # Tzo-Wat
 
-This is an experimental compiler that compiles [Tzo](https://github.com/jorisvddonk/tzo) Standard Representation into a WebAssembly .wat file!
+This is a compiler that compiles [Tzo](https://github.com/jorisvddonk/tzo) Standard Representation into a WebAssembly .wat file!
 
 The compiler emits a **self-contained** wasm module that contains a small Tzo VM runtime:
 it executes the Tzo program list with a program-counter dispatch loop, a tagged value stack
@@ -47,6 +47,13 @@ npm test
 
 `src/test2.ts` compiles every `vendor/tzo/src/tests/*.json` fixture to wasm, runs it, and
 validates the resulting stack (numbers and strings), context, and program counter.
+
+`npm test` also runs the host-import conformance fixtures in `tests/*.json`. These use host
+functions that we define ourselves in `src/hosts.ts` (not the game-engine calls from the CLI)
+to exercise the host-call ABI: zero/one/many params, argument order, void and value results,
+string pointers passed in, and string pointers returned. A fixture can request host functions
+with `"host": ["addOne", ...]` and assert the recorded invocations with `"expected": { "calls":
+[{ "name": "addOne", "args": [41] }] }`.
 
 ## Runtime layout
 

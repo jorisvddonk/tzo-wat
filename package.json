@@ -7,7 +7,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "tsc",
-    "test": "ts-node src/test2.ts",
+    "test": "ts-node src/test2.ts && ts-node src/test2.ts --input 'tests/*.json'",
     "start": "ts-node src/cli.ts",
     "ts-node": "ts-node"
   },

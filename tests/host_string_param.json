@@ -1,0 +1,13 @@
+{
+  "input_program": [
+    { "type": "push-string-instruction", "value": "hello" },
+    { "type": "invoke-function-instruction", "functionName": "echoStr" }
+  ],
+  "host": ["echoStr"],
+  "expected": {
+    "stack": [],
+    "calls": [
+      { "name": "echoStr", "args": ["hello"] }
+    ]
+  }
+}

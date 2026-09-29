@@ -1,0 +1,13 @@
+{
+  "input_program": [
+    { "type": "push-string-instruction", "value": "World" },
+    { "type": "invoke-function-instruction", "functionName": "greet" }
+  ],
+  "host": ["greet"],
+  "expected": {
+    "stack": ["Hello, World"],
+    "calls": [
+      { "name": "greet", "args": ["World"] }
+    ]
+  }
+}

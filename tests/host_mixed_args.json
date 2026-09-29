@@ -1,0 +1,14 @@
+{
+  "input_program": [
+    { "type": "push-string-instruction", "value": "ab" },
+    { "type": "push-number-instruction", "value": 3 },
+    { "type": "invoke-function-instruction", "functionName": "repeat" }
+  ],
+  "host": ["repeat"],
+  "expected": {
+    "stack": ["ababab"],
+    "calls": [
+      { "name": "repeat", "args": ["ab", 3] }
+    ]
+  }
+}

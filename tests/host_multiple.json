@@ -1,0 +1,18 @@
+{
+  "input_program": [
+    { "type": "push-number-instruction", "value": 5 },
+    { "type": "invoke-function-instruction", "functionName": "addOne" },
+    { "type": "push-string-instruction", "value": "x" },
+    { "type": "invoke-function-instruction", "functionName": "echoStr" },
+    { "type": "invoke-function-instruction", "functionName": "noop" }
+  ],
+  "host": ["addOne", "echoStr", "noop"],
+  "expected": {
+    "stack": [6],
+    "calls": [
+      { "name": "addOne", "args": [5] },
+      { "name": "echoStr", "args": ["x"] },
+      { "name": "noop", "args": [] }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "input_program": [
+    { "type": "invoke-function-instruction", "functionName": "noop" }
+  ],
+  "host": ["noop"],
+  "expected": {
+    "stack": [],
+    "calls": [
+      { "name": "noop", "args": [] }
+    ]
+  }
+}

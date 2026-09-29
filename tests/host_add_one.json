@@ -1,0 +1,13 @@
+{
+  "input_program": [
+    { "type": "push-number-instruction", "value": 41 },
+    { "type": "invoke-function-instruction", "functionName": "addOne" }
+  ],
+  "host": ["addOne"],
+  "expected": {
+    "stack": [42],
+    "calls": [
+      { "name": "addOne", "args": [41] }
+    ]
+  }
+}
